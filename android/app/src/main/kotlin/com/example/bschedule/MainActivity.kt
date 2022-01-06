@@ -1,4 +1,4 @@
-package com.example.bschedule
+package com.mrmiss.bschedule
 
 import io.flutter.embedding.android.FlutterActivity
 

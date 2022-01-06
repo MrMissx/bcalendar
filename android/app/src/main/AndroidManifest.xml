@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.bschedule">
+    package="com.mrmiss.bschedule">
    <application
         android:label="bschedule"
         android:name="${applicationName}"
