@@ -1,3 +1,4 @@
+import 'package:bschedule/tools/db_utils.dart';
 import 'package:flutter/material.dart';
 
 import 'page/about.dart';
@@ -37,6 +38,12 @@ class _MainPageState extends State<MainPage> {
         title: headerText[_selectedIndex],
       ),
       body: pageOption[_selectedIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          DBHelper.getData().then((value) => print(value));
+        },
+        child: Icon(Icons.refresh),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(

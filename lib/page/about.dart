@@ -1,4 +1,6 @@
+import 'package:bschedule/tools/db_utils.dart';
 import 'package:flutter/material.dart';
+import './login.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -14,8 +16,12 @@ class _AboutPageState extends State<AboutPage> {
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text('About'),
-            onTap: () {},
+            title: Text('Logout'),
+            onTap: () {
+              DBHelper.deleteData();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginPage()));
+            },
           ),
         ],
       ),

@@ -6,20 +6,23 @@ class DBHelper {
     final dbPath = path.join(await getDatabasesPath(), 'data.db');
     print(dbPath);
     return openDatabase(dbPath, onCreate: (db, version) async {
+      print("Creating Database");
       db.execute(
           "CREATE TABLE creds(_id INTEGER PRIMARY KEY, email TEXT, password TEXT)");
+      db.execute("CREATE TABLE Cookie(_id INTEGER PRIMARY KEY, cookie TEXT, epoch INTEGER)");
     }, version: 1);
   }
 
   static Future<void> insertCredentials(Map<String, dynamic> data) async {
     final db = await DBHelper.database();
-    if (await getData() == []) {
-      await db.insert('creds', data,
-          conflictAlgorithm: ConflictAlgorithm.replace);
-    } else {
-      await db
-          .update('creds', data, where: '_id = ?', whereArgs: [data["_id"]]);
-    }
+    await db.insert('creds', data,
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  static Future<void> insertCookies(Map<String, dynamic> data) async {
+    final db = await DBHelper.database();
+    await db.insert('Cookie', data,
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<List<Map<String, dynamic>>> getData() async {
@@ -27,9 +30,18 @@ class DBHelper {
     return db.query("creds");
   }
 
+  static Future<List<Map<String, dynamic>>> getCookie() async {
+    final db = await DBHelper.database();
+    return await db.query("Cookie");
+  }
+
   static Future<void> deleteData() async {
     final db = await DBHelper.database();
-    print("Deleting db");
-    await db.delete("creds", where: "_id = ?", whereArgs: ["1"]);
+    await db.rawDelete("DELETE FROM creds WHERE _id = 1");
+  }
+
+  static Future<void> deleteCookie() async {
+    final db = await DBHelper.database();
+    await db.rawDelete("DELETE FROM Cookie WHERE _id = 1");
   }
 }

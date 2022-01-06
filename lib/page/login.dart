@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:bschedule/main_page.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
+import 'package:bschedule/main_page.dart';
 import '../tools/db_utils.dart';
+import '../tools/scraper.dart';
 import '../theme.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,6 +15,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool passwordVisible = false;
+  final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -23,11 +26,47 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void setCreds(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (!form!.validate()) {
+      return;
+    }
+
+    // attemp login
+    final a = await ClassSchedule.login(
+        emailController.text, passwordController.text);
+
+    if (a.first != 0) {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Login Failed",
+        desc: a.last,
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Retry",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ).show();
+      return;
+    }
+
+    final SnackBar notif = SnackBar(
+      content: Text("Login successful"),
+      duration: Duration(seconds: 1),
+      backgroundColor: Colors.green,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(notif);
+
     await DBHelper.insertCredentials({
       '_id': 1,
       'email': emailController.text,
       'password': passwordController.text,
     });
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => MainPage()),
@@ -64,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: 48,
               ),
               Form(
+                key: _formKey,
                 child: Column(
                   children: [
                     Container(
@@ -75,18 +115,15 @@ class _LoginPageState extends State<LoginPage> {
                         controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@binus.ac.id')) {
-                            return 'Please enter a valid email';
+                            return 'Please enter your Username';
                           }
                           return null;
                         },
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         decoration: InputDecoration(
-                          hintText: 'Email',
+                          hintText: 'Username',
                           hintStyle: h3.copyWith(color: textGrey),
-                          prefixIcon: Icon(Icons.mail),
+                          prefixIcon: Icon(Icons.person),
                           border: const OutlineInputBorder(
                             borderSide: BorderSide.none,
                           ),
@@ -104,6 +141,12 @@ class _LoginPageState extends State<LoginPage> {
                       child: TextFormField(
                         controller: passwordController,
                         obscureText: !passwordVisible,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your Password';
+                          }
+                          return null;
+                        },
                         decoration: InputDecoration(
                           hintText: 'Password',
                           hintStyle: h3.copyWith(color: textGrey),

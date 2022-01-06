@@ -11,22 +11,20 @@ void main() {
 
 class MyApp extends StatelessWidget {
   Widget detectPage() {
-    print("Detecting page...");
     DBHelper.getData().then((res) async {
-      print(res);
       if (res.isEmpty) {
         return LoginPage();
       }
-      var a =
-          await ClassSchedule.getSchedule(res[0]['email'], res[0]['password']);
+      var res = await ClassSchedule.login(res[0]['email'], res[0]['password']);
 
-      print(a);
-      if (a.first != 0) {
+      if (res.first != 0) {
         DBHelper.deleteData();
         return LoginPage();
       }
       return MainPage();
     });
+
+    // We should not reach this point but whatever for safety.
     return LoginPage();
   }
 
